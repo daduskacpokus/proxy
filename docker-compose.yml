@@ -1,0 +1,70 @@
+version: '2'
+services:
+  httpd:
+    build: ./httpd
+    ports:
+      - 10.10.1.10:8080:80
+    restart: always
+    networks:
+      frontend:    
+  tor:
+    image: dperson/torproxy
+    restart: always
+    ports:
+      - 10.10.1.10:8118:8118
+      - 10.10.1.10:9050:9050
+    environment:
+      - 'LOCATION=RU'    
+    networks:
+      frontend:        
+  squid_forward:
+    image: sameersbn/squid:3.5.27-2
+    volumes:
+      - ./squid/forward.conf:/etc/squid/squid.conf
+    restart: always
+    networks:
+      backend:
+      network-services_vlan:
+        ipv4_address: 10.10.1.11
+    ports:
+      - 10.10.1.11:3128:3128
+    depends_on:
+      - elastic
+  elastic:
+    build: ./elk
+    volumes:
+      - ./elk/logs:/var/lib/elasticsearch
+      - ./elk/logstash.conf:/etc/logstash/conf.d/30-output.conf
+    networks:
+      backend:
+        ipv4_address: 192.168.189.100
+    environment:
+      - ES_HEAP_SIZE=8g
+  # syslogd:
+  #   image: helder/rsyslog
+  #   volumes:
+  #     - ./syslog/01-json-template.conf:/etc/rsyslog.d/01-json-template.conf
+  #     - ./syslog/60-output.conf:/etc/rsyslog.d/60-output.conf
+  #     - ./syslog/rsyslog.conf:/etc/rsyslogd.conf
+  #   networks:
+  #     backend:
+  #       ipv4_address: 192.168.189.101
+  #   restart: always
+  squid_reverse:
+    image: sameersbn/squid:3.5.27-2
+    volumes:
+      - ./squid/reverse.conf:/etc/squid/squid.conf
+    networks:
+      backend:      
+      frontend:      
+    ports:
+      - 10.10.1.10:8081:80
+    restart: always
+networks:
+  backend:
+    ipam:
+      config:
+      - subnet: 192.168.189.0/24
+  frontend:
+  network-services_vlan:
+    external: true    
