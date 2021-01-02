@@ -18,9 +18,9 @@ services:
     networks:
       frontend:        
   squid_forward:
-    image: sameersbn/squid:3.5.27-2
+    image: muccg/squid-deb-proxy:latest
     volumes:
-      - ./squid/forward.conf:/etc/squid/squid.conf
+      - ./squid/forward.conf:/etc/squid-deb-proxy/squid-deb-proxy.conf
     restart: always
     networks:
       backend:
