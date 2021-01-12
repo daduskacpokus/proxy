@@ -1,7 +1,7 @@
-www.binance.com
-sdstream.binance.com
-sdstream.binancefuture.com
-sensors.binance.cloud
-stream.binancefuture.com
-fstream.binance.com
-testnet.binancefuture.com
+\.binance\.com$
+\.inance\.cloud$
+\.binancefuture\.com$
+\.zdassets\.com$
+\.zendesk\.com$
+\.bybit\.com$
+\.tproger\.ru$

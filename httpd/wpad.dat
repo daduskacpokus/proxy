@@ -1,6 +1,7 @@
 function FindProxyForURL(url, host) {
-    tor = "SOCKS5 10.10.1.10:9050";
-    squid = "PROXY 10.10.1.10:3128";
+    tor = "SOCKS5 10.10.1.1:9050";
+    squid = "PROXY 10.10.1.194:3128";
+    tor2 = "SOCKS5 192.168.189.1:9050";
 
 //  If the hostname matches, send proxy.
     if (shExpMatch(host, "(*.yandex.ru|yandex.ru)")||shExpMatch(host, "(*.yandex.ua|yandex.ua)")||shExpMatch(host, "(*.yandex.net|yandex.net)")||shExpMatch(host, "(*.yadi.sk|yadi.sk)"))
@@ -23,11 +24,18 @@ function FindProxyForURL(url, host) {
     
     if (isInNet(host, "10.10.0.0", "255.255.254.0"))
         return "DIRECT";    
+    
+    if (myIpAddress() == "192.168.189.3")
+        return tor2;    
 
     if (shExpMatch(host, "(*.kinopoisk.ru|kinopoisk.ru)"))
         return tor; 
   
+    if (shExpMatch(host, "(gatestats.nik.dstarlab.com|ethgate.nik.dstarlab.com)"))
+        return tor; 
+    if (shExpMatch(host, "(2ip.ru)"))
+        return squid; 
 // DEFAULT RULE: All other traffic, use below proxies, in fail-over order.
-    // return "DIRECT";
-    return squid;
+    return "DIRECT";
+    // return squid;
 }

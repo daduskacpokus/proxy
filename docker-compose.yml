@@ -1,9 +1,9 @@
-version: '2'
+version: '3'
 services:
   httpd:
     build: ./httpd
     ports:
-      - 10.10.1.10:8080:80
+      - 8080:80
     restart: always
     networks:
       frontend:    
@@ -11,8 +11,10 @@ services:
     image: dperson/torproxy
     restart: always
     ports:
-      - 10.10.1.10:8118:8118
-      - 10.10.1.10:9050:9050
+      - 10.10.1.1:8118:8118
+      - 10.10.1.1:9050:9050
+      - 192.168.189.1:8118:8118
+      - 192.168.189.1:9050:9050
     environment:
       - 'LOCATION=RU'    
     networks:
@@ -24,10 +26,10 @@ services:
       - ./squid/ban_domains.txt:/etc/squid/ban_domains.txt
     restart: always
     networks:
-      backend:
+      network-services_vlan:
       frontend:
     ports:
-      - 10.10.1.10:3128:3128
+      - 10.10.1.1:3128:3128
     depends_on:
       - elastic
   elastic:
@@ -37,10 +39,15 @@ services:
       - ./elk/logs:/var/lib/elasticsearch
       - ./elk/logstash.conf:/etc/logstash/conf.d/30-output.conf
     networks:
-      backend:
-        ipv4_address: 192.168.189.100
+      network-services_vlan:
+        ipv4_address: 10.10.1.193
     environment:
       - ES_HEAP_SIZE=8g
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health && echo 'OK'"]
+      interval: 5s
+      timeout: 2s
+      retries: 3      
   # syslogd:
   #   image: helder/rsyslog
   #   volumes:
@@ -48,22 +55,20 @@ services:
   #     - ./syslog/60-output.conf:/etc/rsyslog.d/60-output.conf
   #     - ./syslog/rsyslog.conf:/etc/rsyslogd.conf
   #   networks:
-  #     backend:
-  #       ipv4_address: 192.168.189.101
+  #     network-services_vlan:
+  #       ipv4_address: 10.10.1.101
   #   restart: always
   squid_reverse:
     image: sameersbn/squid:3.5.27-2
     volumes:
       - ./squid/reverse.conf:/etc/squid/squid.conf
     networks:
-      backend:      
+      network-services_vlan:      
       frontend:      
     ports:
-      - 10.10.1.10:8081:80
+      - 8081:80
     restart: always
 networks:
-  backend:
-    ipam:
-      config:
-      - subnet: 192.168.189.0/24
+  network-services_vlan:
+    external: true
   frontend:
