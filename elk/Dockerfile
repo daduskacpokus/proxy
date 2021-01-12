@@ -1,3 +1,2 @@
-FROM sebp/elk
-# EXPOSE 10514
-EXPOSE 1025
+FROM sebp/elk:671
+EXPOSE 5000

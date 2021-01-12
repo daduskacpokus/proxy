@@ -3,7 +3,7 @@ services:
   httpd:
     build: ./httpd
     ports:
-      - 10.10.1.10:8080:80
+      - 8081:80
     restart: always
     networks:
       frontend:    
@@ -11,8 +11,8 @@ services:
     image: dperson/torproxy
     restart: always
     ports:
-      - 10.10.1.10:8118:8118
-      - 10.10.1.10:9050:9050
+      - 8118:8118
+      - 9050:9050
     environment:
       - 'LOCATION=RU'    
     networks:
@@ -24,10 +24,9 @@ services:
     restart: always
     networks:
       backend:
-      network-services_vlan:
-        ipv4_address: 10.10.1.11
+      frontend:
     ports:
-      - 10.10.1.11:3128:3128
+      - 3128:3128
     depends_on:
       - elastic
   elastic:
@@ -38,18 +37,13 @@ services:
     networks:
       backend:
         ipv4_address: 192.168.189.100
+    ports:
+      - 5601:5601
+      - 9200:9200
     environment:
-      - ES_HEAP_SIZE=8g
-  # syslogd:
-  #   image: helder/rsyslog
-  #   volumes:
-  #     - ./syslog/01-json-template.conf:/etc/rsyslog.d/01-json-template.conf
-  #     - ./syslog/60-output.conf:/etc/rsyslog.d/60-output.conf
-  #     - ./syslog/rsyslog.conf:/etc/rsyslogd.conf
-  #   networks:
-  #     backend:
-  #       ipv4_address: 192.168.189.101
-  #   restart: always
+      - ES_HEAP_SIZE=4g
+      - KIBANA_START=1
+      - LOGSTASH_START=1
   squid_reverse:
     image: sameersbn/squid:3.5.27-2
     volumes:
@@ -58,13 +52,14 @@ services:
       backend:      
       frontend:      
     ports:
-      - 10.10.1.10:8081:80
+      - 80:80
     restart: always
 networks:
   backend:
     ipam:
       config:
-      - subnet: 192.168.189.0/24
+      - subnet: 192.168.189.0/25
   frontend:
-  network-services_vlan:
-    external: true    
+    ipam:
+      config:
+      - subnet: 192.168.189.128/25

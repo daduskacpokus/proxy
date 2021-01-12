@@ -1,6 +1,6 @@
 function FindProxyForURL(url, host) {
-    tor = "SOCKS5 10.10.1.10:9050";
-    squid = "PROXY 10.10.1.11:3128"
+    tor = "SOCKS5 192.168.1.38:9050"
+    squid = "PROXY 192.168.1.38:3128"
 // If the hostname matches, send proxy.
     if (shExpMatch(host, "(*.yandex.ru|yandex.ru)")||shExpMatch(host, "(*.yandex.net|yandex.net)")||shExpMatch(host, "(*.yadi.sk|yadi.sk)"))
         return tor;
@@ -11,16 +11,23 @@ function FindProxyForURL(url, host) {
     if (shExpMatch(host, "(*.vk.com|vk.com)"))
         return tor;
     
+
+    if (shExpMatch(host, "(*.kinopoisk.ru|kinopoisk.ru)"))
+        return tor;
+    
     if (shExpMatch(host, "(*.mail.ru|mail.ru)"))
         return tor;
     
     if (shExpMatch(host, "(*.ozon.ru|ozon.ru)"))
         return tor;
+    
+    // if (shExpMatch(host, "(*.megogo.net|megogo.net)"))
+    //     return tor;
 
     if (shExpMatch(host, "2ip.ru"))
-        return squid;        
+        return tor;        
  
 // DEFAULT RULE: All other traffic, use below proxies, in fail-over order.
-    //return "DIRECT";
+    // return "DIRECT";
     return squid;
 }
