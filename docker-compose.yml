@@ -30,9 +30,11 @@ services:
     depends_on:
       - elastic
   elastic:
+    # sysctls:
+    #   - vm.max_map_count=262144
     build: ./elk
     volumes:
-      - ./elk/logs:/var/lib/elasticsearch
+      - logs:/var/lib/elasticsearch
       - ./elk/logstash.conf:/etc/logstash/conf.d/30-output.conf
     networks:
       backend:
@@ -63,3 +65,5 @@ networks:
     ipam:
       config:
       - subnet: 192.168.189.128/25
+volumes:
+  logs:
